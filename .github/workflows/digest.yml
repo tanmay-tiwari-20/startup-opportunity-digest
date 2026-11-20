@@ -1,0 +1,157 @@
+name: Private startup opportunity digest
+
+on:
+  schedule:
+    # 13:00 UTC = 18:30 India time. GitHub may start scheduled jobs later.
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+    inputs:
+      initialize:
+        description: 'First approved bootstrap only: establish a baseline and send a connection test'
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: private-whatsapp-digest-state-v1
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DATA_DIR: ${{ github.workspace }}/data
+      NODE_ENV: production
+    steps:
+      - name: Check out reviewed default-branch code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node 24
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install locked dependencies
+        run: npm ci --omit=dev
+
+      - name: Restore encrypted state and public opportunity ledger
+        id: state-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: wa-state-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: |
+            wa-state-v1-
+          path: |
+            data/config/auth-state.enc
+            data/config/outbox.enc
+            data/seen.json
+            data/digests
+
+      - name: Validate paired state
+        id: state-ready
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          MATCHED_CACHE_KEY: ${{ steps.state-cache.outputs.cache-matched-key }}
+          INITIALIZE_REQUESTED: ${{ inputs.initialize }}
+          FIRST_BOOTSTRAP_ALLOWED: ${{ vars.BOOTSTRAP_ONLY_FIRST_RUN }}
+        with:
+          script: |
+            const fs = require('node:fs/promises');
+            const path = require('node:path');
+            const repo = context.repo;
+            const runId = Number(process.env.GITHUB_RUN_ID);
+            const attempt = Number(process.env.GITHUB_RUN_ATTEMPT);
+            const current = await github.rest.actions.getWorkflowRun({...repo, run_id: runId});
+            const history = await github.rest.actions.listWorkflowRuns({
+              ...repo, workflow_id: current.data.workflow_id,
+              branch: context.payload.repository.default_branch,
+              status: 'completed', per_page: 100
+            });
+            const prior = history.data.workflow_runs.filter(r =>
+              r.id !== runId && ['schedule', 'workflow_dispatch'].includes(r.event) &&
+              r.head_repository?.full_name?.toLowerCase() === `${repo.owner}/${repo.repo}`.toLowerCase()
+            ).sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+            const matched = process.env.MATCHED_CACHE_KEY || '';
+            let initialized = false;
+            if (matched) {
+              const latest = prior[0];
+              const expected = latest ? `wa-state-v1-${latest.id}-${latest.run_attempt}` : '';
+              const sameRunPrevious = attempt > 1 && matched === `wa-state-v1-${runId}-${attempt - 1}`;
+              if (!sameRunPrevious && matched !== expected) {
+                throw new Error('Latest state is unavailable: refusing to roll back to an older send ledger. Manual recovery is required.');
+              }
+            } else {
+              if (context.eventName !== 'workflow_dispatch' ||
+                  process.env.INITIALIZE_REQUESTED !== 'true' ||
+                  process.env.FIRST_BOOTSTRAP_ALLOWED !== 'true') {
+                throw new Error('Paired state is missing. Scheduled runs never bootstrap or reset automatically.');
+              }
+              if (history.data.total_count > 100) {
+                throw new Error('Cannot establish first initialization from bounded history. Manual recovery is required.');
+              }
+              for (const run of prior) {
+                const jobs = await github.rest.actions.listJobsForWorkflowRun({...repo, run_id: run.id, per_page: 100});
+                if (jobs.data.jobs.some(job => job.steps?.some(step =>
+                    step.name === 'Validate paired state' && step.conclusion === 'success'))) {
+                  throw new Error('This workflow used paired state before: refusing old bootstrap fallback. Manual recovery is required.');
+                }
+              }
+              await fs.mkdir(path.join(process.env.DATA_DIR, 'config'), {recursive: true, mode: 0o700});
+              for (const file of ['auth-state.enc', 'outbox.enc']) {
+                await fs.copyFile(path.join(process.env.GITHUB_WORKSPACE, 'bootstrap', file),
+                  path.join(process.env.DATA_DIR, 'config', file));
+              }
+              initialized = true;
+            }
+            for (const file of ['auth-state.enc', 'outbox.enc']) {
+              const target = path.join(process.env.DATA_DIR, 'config', file);
+              const stat = await fs.lstat(target);
+              if (!stat.isFile() || stat.isSymbolicLink() || stat.size < 33) throw new Error('Invalid paired-state file');
+              await fs.chmod(target, 0o600);
+            }
+            core.setOutput('initialized', String(initialized));
+
+      - name: Collect verified public sources and send only to the linked account
+        id: batch
+        timeout-minutes: 10
+        env:
+          AUTH_KEY_BASE64: ${{ secrets.AUTH_KEY_BASE64 }}
+          CONTROL_TOKEN: ${{ secrets.CONTROL_TOKEN }}
+          DIGEST_INITIALIZE_ONLY: ${{ steps.state-ready.outputs.initialized }}
+        run: node cloud-main.mjs --batch
+
+      - name: Save updated encrypted state even after a worker error
+        id: saved-state
+        if: always() && steps.state-ready.outcome == 'success'
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          key: wa-state-v1-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            data/config/auth-state.enc
+            data/config/outbox.enc
+            data/seen.json
+            data/digests
+
+      - name: Verify updated state was retained
+        if: always() && steps.state-ready.outcome == 'success'
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const key = `wa-state-v1-${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT}`;
+            for (let attempt = 0; attempt < 5; attempt++) {
+              const result = await github.request('GET /repos/{owner}/{repo}/actions/caches', {
+                ...context.repo, key, ref: context.ref, per_page: 100
+              });
+              if (result.data.actions_caches.some(cache => cache.key === key)) return;
+              await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            throw new Error('The latest state was not retained. Do not rerun a send from an older cache; inspect WhatsApp and recover state first.');

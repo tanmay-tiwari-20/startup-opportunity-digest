@@ -1,0 +1,14 @@
+{
+ "sources":[
+  {"id":"yourstory","name":"YourStory","type":"rss","url":"https://yourstory.com/feed"},
+  {"id":"inc42","name":"Inc42","type":"rss","url":"https://inc42.com/feed/"},
+  {"id":"g20-land","name":"UNCCD G20 Global Land Initiative","type":"rss","url":"https://g20land.org/feed/"},
+  {"id":"elevate","name":"Government of Karnataka","type":"page","url":"https://elevate.startupkarnataka.in/public/","calls":[
+   {"id":"nxt-2026","title":"ELEVATE NxT 2026","deadlinePattern":"Last Date to Apply\\s*\\[?\\s*(\\d{1,2}(?:st|nd|rd|th)?\\s+[A-Za-z]+\\s+20\\d{2})","expectedDeadline":"14 December 2026","deadlineISO":"2026-12-14T17:00:00+05:30","requiredText":"ELEVATE NxT","summary":"DeepTech grant-in-aid call. Read the current entity, stage, team and location requirements in the official notice."},
+   {"id":"minorities-2026","title":"ELEVATE Minorities 2026","deadlinePattern":"Last Date to Apply\\s*\\[?\\s*(\\d{1,2}(?:st|nd|rd|th)?\\s+[A-Za-z]+\\s+20\\d{2})","expectedDeadline":"14 December 2026","deadlineISO":"2026-12-14T17:00:00+05:30","requiredText":"ELEVATE Minorities 2026","summary":"Separate Karnataka startup call with prescribed minority ownership criteria. Check the full eligibility and milestone funding terms."}
+  ]},
+  {"id":"bevisioneers","name":"beVisioneers","type":"page","url":"https://bevisioneers.world/faqs/fellowship","calls":[
+   {"id":"2027","title":"beVisioneers 2027 environmental fellowship","deadlinePattern":"Application Period\\s*:\\s*[^-–—]+[-–—]\\s*([A-Za-z]+\\s+\\d{1,2}\\s+20\\d{2})","expectedDeadline":"31 January 2027","requiredText":"2027 Fellowship","summary":"Environmental innovation fellowship. India is an eligible residence location; check the current age, residence, project-stage and participation requirements."}
+  ]}
+ ]
+}

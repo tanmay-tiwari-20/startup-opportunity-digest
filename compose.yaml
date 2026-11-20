@@ -1,0 +1,29 @@
+services:
+  digest:
+    build:
+      context: .
+    init: true
+    user: "1000:1000"
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATA_DIR: /data
+      WHATSAPP_RELAY_PORT: "18764"
+      WHATSAPP_RELAY_BIND_HOST: 0.0.0.0
+    ports:
+      - "127.0.0.1:18764:18764"
+    volumes:
+      - digest-data:/data
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,size=64m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    command: ["node", "cloud-main.mjs", "--batch"]
+
+volumes:
+  digest-data:

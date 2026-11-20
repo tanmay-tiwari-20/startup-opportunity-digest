@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Private startup digest</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6f4;color:#153a2b;font:16px/1.55 system-ui,sans-serif}main{max-width:760px;margin:44px auto;padding:30px;background:#fff;border:1px solid #dce8df;border-radius:20px}h1{font-size:30px;line-height:1.2;margin:12px 0 20px}.badge{font-size:13px;color:#486252;letter-spacing:.07em;text-transform:uppercase}.grid{display:grid;grid-template-columns:1fr 330px;gap:24px;margin-top:28px}.qr{min-height:330px;display:grid;place-items:center;border:1px solid #dce8df;border-radius:14px;background:#fafcfb}img{width:320px;height:320px}ol{padding-left:22px}li{margin-bottom:14px}#status{font-weight:600}footer{border-top:1px solid #e0e9e3;margin-top:28px;padding-top:18px;color:#557263;font-size:14px}.ok{color:#147349}@media(max-width:680px){main{margin:16px;padding:22px}.grid{grid-template-columns:1fr}.qr{max-width:330px}h1{font-size:26px}}
+</style>
+</head>
+<body>
+<main>
+<div class="badge">Your private reading list</div>
+<h1>Startup updates in your WhatsApp</h1>
+<p>Grants, founder programmes, useful events and startup news. Daily at <strong>6:30 PM IST</strong>, in your <strong>Message yourself</strong> chat.</p>
+<div class="grid"><section>
+<p id="status" role="status">Connecting to WhatsApp…</p>
+<ol id="instructions"><li>Open WhatsApp on your phone.</li><li>Go to <strong>Linked devices</strong> and choose <strong>Link a device</strong>.</li><li>Scan the QR code beside these steps.</li></ol>
+<p id="linked" hidden class="ok">WhatsApp is linked. A short delivery test will check that the message appears on your phone.</p>
+</section><div class="qr"><img id="qr" alt="WhatsApp device linking QR code" hidden><span id="placeholder">Preparing your QR code…</span></div></div>
+<footer>Updates go privately to you. You choose which posts to forward. Once the cloud setup is confirmed, daily delivery can run while your computer is off.</footer>
+</main>
+<script>
+const status=document.getElementById('status'), qr=document.getElementById('qr'), placeholder=document.getElementById('placeholder'), instructions=document.getElementById('instructions'), linked=document.getElementById('linked');
+async function refresh(){try{const r=await fetch('/api/qr',{cache:'no-store'});if(!r.ok)throw Error('unavailable');const s=await r.json();const connected=s.connection==='open'||s.connected===true;linked.hidden=!connected;instructions.hidden=connected;if(connected){status.textContent='WhatsApp linked';status.className='ok';qr.hidden=true;placeholder.hidden=false;placeholder.textContent='✓ Connected';}else if(s.qrAvailable){status.textContent='Ready to scan';qr.src='/qr.png?refresh='+Date.now();qr.hidden=false;placeholder.hidden=true;}else{status.textContent=s.connection==='loggedOut'?'Link WhatsApp again':'Connecting to WhatsApp…';qr.hidden=true;placeholder.hidden=false;placeholder.textContent='Preparing your QR code…';}}catch{status.textContent='Waiting for the connection service';qr.hidden=true;placeholder.hidden=false;placeholder.textContent='Reconnecting…';}setTimeout(refresh,2500)}refresh();
+</script>
+</body>
+</html>

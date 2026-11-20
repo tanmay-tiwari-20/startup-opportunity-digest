@@ -1,0 +1,11 @@
+node_modules/
+data/
+config/
+logs/
+.env
+.env.*
+!.env.example
+*.tmp
+*.log
+bootstrap/*.enc
+*.zip
