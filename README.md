@@ -1,6 +1,6 @@
 # Free private WhatsApp startup feed
 
-Prepared 20 November 2026. This is the tested cloud deployment package; it has not yet been deployed or linked to a cloud WhatsApp session.
+Deployed and verified 20 November 2026 at [tanmay-tiwari-20/startup-opportunity-digest](https://github.com/tanmay-tiwari-20/startup-opportunity-digest). The cloud linking test succeeded and was confirmed visible by the user. A regular run restored encrypted state, sent six source updates and saved the new state successfully. The old local Codex automation is paused.
 
 The free route uses a public GitHub source-code repository and one standard Linux GitHub Actions job each day. It collects public startup feeds and selected official call pages, sends a digest to the authenticated account's **Message yourself** chat, saves encrypted session state, and stops. There is no paid AI, search API or always-on hosting service.
 
@@ -32,12 +32,12 @@ The preview is saved under the ignored data/research/ directory. Normal runs use
 
 ## Deployment and linking
 
-The remaining steps are to sign in to GitHub, create the public source repository, configure its protected authentication-key secret and approve a fresh WhatsApp linked device for the cloud job. Source code and the encrypted initial session can be public; the decryption key must remain in GitHub Secrets and must never be committed or included in caches. A fresh session avoids sharing mutable credentials with the still-running laptop relay.
+GitHub sign-in, repository creation, protected-secret configuration and a fresh WhatsApp linked device have been completed with user approval. Source code and the encrypted initial session are public; the decryption key is in GitHub Secrets and must never be committed or included in caches. The cloud session is separate from the previous laptop session.
 
-Use the scheduled workflow's manual initialise option only for the first approved bootstrap. Initialisation sends a short cloud-connection confirmation and records a feed baseline. Then confirm the message in WhatsApp and switch off the old local schedule so only the cloud job sends daily updates.
+The first bootstrap is complete and its one-time permission flag is now false. The active GitHub workflow triggers daily at 6:30 PM IST. Initialisation sent the cloud-connection confirmation and recorded a feed baseline. The user confirmed that message, and the old local schedule has been paused so only the cloud job sends daily updates.
 
 The workflow never resets to an old initial session after a usable cloud run. GitHub cache storage is best effort; missing or stale state requires manual recovery and may require linking WhatsApp again. The cache contains encrypted auth/outbox files and public feed records, not the secret key or control token. Do not reuse stale credentials or bypass the send ledger after a failed run.
 
 Baileys remains unofficial WhatsApp access and can break or lead to account restrictions. This package does not promise uninterrupted delivery or an official WhatsApp integration.
 
-The existing local automation remains active until the cloud setup is linked and its test is confirmed.
+Validation: [initial cloud run](https://github.com/tanmay-tiwari-20/startup-opportunity-digest/actions/runs/44776533188), [regular cloud run](https://github.com/tanmay-tiwari-20/startup-opportunity-digest/actions/runs/44777325068). Both completed successfully. The next daily trigger is 21 November 2026 at 6:30 PM IST; delivery follows the run and may be delayed by GitHub.
