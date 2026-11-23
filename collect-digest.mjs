@@ -1,3 +1,7 @@
+import { cleanText, canonicalUrl, parseDeadline, localDate, datePattern } from './digest-text.mjs';
+export { cleanText, canonicalUrl, parseDeadline } from './digest-text.mjs';
+import { collectOpportunities, renderOpportunity } from './opportunities.mjs';
+import { discoverOpportunities } from './discovery.mjs';
 import { XMLParser } from 'fast-xml-parser';
 import { createHash } from 'node:crypto';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
@@ -5,41 +9,16 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const MAX_BYTES = 2 * 1024 * 1024;
-const MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+const MAX_AGE_MS = 72 * 60 * 60 * 1000;
 const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_', removeNSPrefix: true, processEntities: true, htmlEntities: true });
 const relevant = /\b(start[ -]?ups?|founders?|entrepreneurs?|msmes?|incubation|incubators?|grants?|fellowships?|accelerators?|seed fund|paid pilots?|innovation challenge|hackathons?|bootcamps?|demo days?|pitch competitions?)\b/i;
 const opportunitySignal = /\b(call for (applications|proposals)|applications? (?:are )?open|apply (?:now|by)|registrations? (?:are )?open|hackathons?|bootcamps?|demo days?|pitch competitions?|(?:grant|fellowship|incubation|accelerator|innovation challenge|paid pilot) (?:applications?|programme|program|opportunit(?:y|ies)|call|cohort))\b/i;
 const excludedNews = /\b(passes? away|passed away|obituary|in memoriam|dies|died|horoscope|celebrity gossip)\b/i;
-const tracking = /^(utm_.+|fbclid|gclid|dclid|mc_cid|mc_eid|igshid)$/i;
+const roundup = /\b(roundups?|daily (?:digest|brief|wrap)|weekly (?:digest|wrap|funding)|funding (?:roundup|galore)|top (?:startup|funding) (?:news|stories)|this week|week in review)\b/i;
 const list = value => value == null ? [] : Array.isArray(value) ? value : [value];
 const scalar = value => typeof value === 'object' && value !== null ? String(value['#text'] ?? value.__cdata ?? '') : String(value ?? '');
 const digestHash = value => createHash('sha256').update(value).digest('hex');
 const semanticText = value => cleanText(value).toLowerCase().replace(/[\p{P}\p{S}]+/gu, ' ').replace(/\s+/g, ' ').trim();
-
-export function cleanText(value) {
-  let text = scalar(value).replace(/<!--[\s\S]*?-->/g, ' ').replace(/<(script|style|noscript)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ')
-    .replace(/<\/?(?:p|div|br|li|h[1-6]|tr|section|article)\b[^>]*>/gi, '\n').replace(/<[^>]*>/g, ' ');
-  const named = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', ndash: '–', mdash: '—', rsquo: '’', lsquo: '‘' };
-  text = text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, entity) => {
-    if (entity[0] !== '#') return named[entity.toLowerCase()] ?? match;
-    const number = entity[1].toLowerCase() === 'x' ? parseInt(entity.slice(2), 16) : parseInt(entity.slice(1), 10);
-    return number > 0 && number <= 0x10ffff && !(number >= 0xd800 && number <= 0xdfff) ? String.fromCodePoint(number) : ' ';
-  });
-  // A second tag pass catches entity-encoded markup without executing it.
-  return text.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ').replace(/<[^>]*>/g, ' ')
-    .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, '').replace(/\s+/g, ' ').trim();
-}
-
-export function canonicalUrl(value, base) {
-  try {
-    const url = new URL(value, base);
-    if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password) return null;
-    url.hash = '';
-    for (const key of [...url.searchParams.keys()]) if (tracking.test(key)) url.searchParams.delete(key);
-    url.searchParams.sort();
-    return url.href;
-  } catch { return null; }
-}
 
 function feedLink(entry, base) {
   for (const value of list(entry.link)) {
@@ -61,7 +40,8 @@ function extractFeed(xml, source, now, stats) {
   for (const entry of entries) {
     stats.feedItems++;
     const title = cleanText(entry.title);
-    const summary = cleanText(entry.description ?? entry.summary ?? entry.encoded ?? entry.content).slice(0, 250);
+    const sourceSummary = cleanText(entry.description ?? entry.summary ?? entry.encoded ?? entry.content);
+    const summary = sourceSummary.slice(0, 450);
     const publishedAt = new Date(scalar(entry.pubDate ?? entry.published ?? entry.date ?? entry.updated));
     const url = feedLink(entry, source.url);
     if (!url || !title || !Number.isFinite(publishedAt.getTime())) { stats.invalid++; continue; }
@@ -69,39 +49,15 @@ function extractFeed(xml, source, now, stats) {
     if (now.getTime() - publishedAt.getTime() > MAX_AGE_MS) { stats.stale++; continue; }
     if (!relevant.test(`${title} ${summary}`)) { stats.irrelevant++; continue; }
     const type = opportunitySignal.test(`${title} ${summary}`) ? 'opportunity' : 'news';
-    if (type === 'news' && excludedNews.test(title)) { stats.irrelevant++; continue; }
-    const explicitDeadline = type === 'opportunity' ? parseDeadline(findDeadline(`${title} ${summary}`)) : null;
+    if (type === 'news' && (excludedNews.test(title) || roundup.test(title))) { stats.irrelevant++; continue; }
+    const explicitDeadline = type === 'opportunity' ? parseDeadline(findDeadline(`${title} ${sourceSummary}`)) : null;
     if (explicitDeadline && explicitDeadline.date < localDate(now, explicitDeadline.timeZone)) { stats.expiredCalls++; continue; }
     const item = { id: `url:${digestHash(url).slice(0, 24)}`, type, title, summary, url, publishedAt: publishedAt.toISOString(), sourceId: source.id, sourceName: source.name ?? source.id, sourceType: 'RSS feed', deadline: null };
-    // Feed article identity is the URL and original publication date; excerpt edits alone are not a new article.
-    item.semanticHash = digestHash(JSON.stringify([url, semanticText(title), item.publishedAt]));
+    // A republished timestamp or edited excerpt never makes a shared article new.
+    item.semanticHash = digestHash(url);
     result.push(item);
   }
   return result;
-}
-
-const months = { january: 1, february: 2, march: 3, april: 4, may: 5, june: 6, july: 7, august: 8, september: 9, october: 10, november: 11, december: 12 };
-const datePattern = '(?:\\d{4}-\\d{2}-\\d{2}|\\d{1,2}[/-]\\d{1,2}[/-]\\d{4}|\\d{1,2}(?:st|nd|rd|th)?\\s+(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s*,?\\s*\\d{4}|(?:January|February|March|April|May|June|July|August|September|October|November|December)\\s+\\d{1,2}(?:st|nd|rd|th)?\\s*,?\\s*\\d{4})';
-
-export function parseDeadline(value, timeZone = 'Asia/Kolkata') {
-  const text = cleanText(value);
-  let year, month, day, match;
-  if ((match = text.match(/\b(20\d{2})-(\d{2})-(\d{2})\b/))) [, year, month, day] = match;
-  else if ((match = text.match(/\b(\d{1,2})[/-](\d{1,2})[/-](20\d{2})\b/))) [, day, month, year] = match;
-  else if ((match = text.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s+([A-Za-z]+)\s*,?\s*(20\d{2})\b/))) { [, day, month, year] = match; month = months[month.toLowerCase()]; }
-  else if ((match = text.match(/\b([A-Za-z]+)\s+(\d{1,2})(?:st|nd|rd|th)?\s*,?\s*(20\d{2})\b/))) { [, month, day, year] = match; month = months[month.toLowerCase()]; }
-  year = Number(year); month = Number(month); day = Number(day);
-  if (!year || !month || !day) return null;
-  const date = new Date(Date.UTC(year, month - 1, day));
-  if (date.getUTCFullYear() !== year || date.getUTCMonth() + 1 !== month || date.getUTCDate() !== day) return null;
-  const isoDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-  // Date-only notices have no claimed closing time. Compare calendar dates in the configured issuer timezone.
-  return { date: isoDate, display: match[0], timeZone };
-}
-
-function localDate(now, timeZone = 'Asia/Kolkata') {
-  const parts = new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
-  return `${parts.find(p => p.type === 'year').value}-${parts.find(p => p.type === 'month').value}-${parts.find(p => p.type === 'day').value}`;
 }
 
 function findDeadline(scope, pattern) {
@@ -193,7 +149,8 @@ async function fetchBounded(url, fetchImpl) {
 }
 
 function itemText(item) {
-  const tag = item.type === 'opportunity' ? 'Opportunity / event' : 'Startup news';
+  if (item.applicationUrl) return renderOpportunity(item);
+  const tag = item.type === 'opportunity' ? (item.sourceType === 'RSS feed' ? 'Opportunity announcement' : 'Opportunity / event') : 'Startup news';
   const lines = [`*${tag}: ${item.title}*`];
   if (item.change === 'updated') lines.push('Updated official call details.');
   if (item.summary) lines.push(item.summary);
@@ -210,7 +167,69 @@ function itemText(item) {
   return lines.join('\n');
 }
 
-export async function collectDigest({ sources = [], state = {}, now = new Date(), fetchImpl = globalThis.fetch } = {}) {
+export function similarHeadline(a, b) {
+  const tokens = value => new Set(semanticText(value).split(' ').filter(token => token.length > 2 && !/^(?:the|and|for|with|from|its|has|that|this|startup|startups|founder|founders|news)$/.test(token)));
+  const left = tokens(a), right = tokens(b);
+  const funding = value => /\b(?:raises?|raised|nets?|secures?|bags?|funding)\b/i.test(value);
+  const amounts = value => new Set([...cleanText(value).matchAll(/\b(\d+(?:[.,]\d+)?)\s*(crores?|cr|lakhs?|lacs?|million|mn|billion|bn)\b/gi)].map(match => `${match[1].replace(/,/g, '')}:${match[2].toLowerCase().replace(/^crores?$/, 'cr').replace(/^million$/, 'mn').replace(/^billion$/, 'bn')}`));
+  const entities = value => new Set((cleanText(value).match(/\b[A-Z][A-Za-z0-9]*(?:[.-][A-Za-z0-9]+)*\b/g) ?? []).map(word => word.toLowerCase()).filter(word => word.length >= 4 && !/^(?:startup|startups|enterprise|data|security|funding|round|series|raises|raised|nets|secures|bags|from|with|others|partners|venture|ventures|capital|india|indian|global|technology|fintech|healthtech|climate|energy|green|health|financial|platform)$/.test(word)));
+  if (funding(a) && funding(b)) {
+    const firstAmounts = amounts(a), secondAmounts = amounts(b), firstEntities = entities(a), secondEntities = entities(b);
+    if ([...firstAmounts].some(amount => secondAmounts.has(amount)) && [...firstEntities].some(entity => secondEntities.has(entity))) return true;
+  }
+  if (Math.min(left.size, right.size) < 4) return semanticText(a) === semanticText(b);
+  const overlap = [...left].filter(token => right.has(token)).length;
+  return overlap / new Set([...left, ...right]).size >= 0.72 || overlap / Math.min(left.size, right.size) >= 0.9;
+}
+
+const issuerKey = item => new URL(item.url).hostname.replace(/^www\./, '');
+const isRichOpportunity = item => item.type === 'opportunity' && item.sourceType !== 'RSS feed';
+
+export function selectDigestItems(candidates, state, now, stats) {
+  const chosen = [], ids = new Set(), urls = new Set(), issuers = new Map();
+  const history = Object.entries(state.seen ?? {});
+  const sharedUrls = new Set(history.filter(([id, item]) => id.startsWith('url:') || item.type === 'news' || item.sourceType === 'RSS feed').map(([, item]) => canonicalUrl(item.url)).filter(Boolean));
+  const recentNews = history.filter(([id, item]) => (id.startsWith('url:') || item.sourceType === 'RSS feed') && now - new Date(item.lastSeenAt) <= 30 * 86400000).map(([, item]) => item.title);
+  let characters = 120, opportunities = 0, news = 0;
+  const pending = [];
+  for (const item of candidates) {
+    const rich = isRichOpportunity(item);
+    const key = rich ? `${item.applicationUrl ?? item.url}|${semanticText(item.title)}` : item.url;
+    if (ids.has(item.id) || urls.has(key) || (!rich && pending.some(other => !isRichOpportunity(other) && similarHeadline(item.title, other.title)))) { stats.duplicates++; continue; }
+    ids.add(item.id); urls.add(key);
+    const previous = state.seen?.[item.id] ?? (rich ? history.find(([, prior]) => canonicalUrl(prior.url) === item.url && semanticText(prior.title) === semanticText(item.title))?.[1] : null);
+    if ((!rich && (sharedUrls.has(item.url) || recentNews.some(title => similarHeadline(item.title, title)))) || previous?.semanticHash === item.semanticHash && item.change !== 'reminder') { stats.alreadySeen++; continue; }
+    item.change = item.change === 'reminder' ? 'reminder' : previous ? 'updated' : 'new'; item.version = item.semanticHash;
+    pending.push(item);
+  }
+  const official = pending.filter(isRichOpportunity);
+  // Reserve one place each for an available event and grant, then fill by deadline.
+  const priority = official.sort((a, b) => (a.deadlineDate ?? '9999').localeCompare(b.deadlineDate ?? '9999') || a.id.localeCompare(b.id));
+  const order = [...priority.filter(item => /event|summit|webinar|conference|workshop/.test(item.category ?? '')).slice(0, 1), ...priority.filter(item => /grant/.test(item.category ?? '')).slice(0, 1), ...priority];
+  function add(item, issuerLimit) {
+    if (chosen.includes(item)) return;
+    const rich = isRichOpportunity(item), issuer = issuerKey(item);
+    if ((issuers.get(issuer) ?? 0) >= issuerLimit || (rich ? opportunities >= 6 : news >= 2)) return;
+    const rendered = itemText(item);
+    if (characters + rendered.length + 3 > 9900) return;
+    chosen.push(item); issuers.set(issuer, (issuers.get(issuer) ?? 0) + 1); characters += rendered.length + 3;
+    if (rich) opportunities++; else news++;
+  }
+  for (const item of order) add(item, 1);
+  for (const item of order) add(item, 2);
+  const lastPublisherUse = new Map();
+  for (const [id, prior] of history) {
+    if (!(id.startsWith('url:') || prior.sourceType === 'RSS feed') || !canonicalUrl(prior.url)) continue;
+    const publisher = issuerKey(prior), used = new Date(prior.lastSeenAt).getTime() || 0;
+    lastPublisherUse.set(publisher, Math.max(lastPublisherUse.get(publisher) ?? 0, used));
+  }
+  const newsOrder = pending.filter(item => !isRichOpportunity(item)).sort((a,b) => (lastPublisherUse.get(issuerKey(a)) ?? 0) - (lastPublisherUse.get(issuerKey(b)) ?? 0) || (b.publishedAt ?? '').localeCompare(a.publishedAt ?? ''));
+  for (const item of newsOrder) add(item, 1);
+  stats.opportunitiesSelected = opportunities; stats.newsSelected = news;
+  return chosen;
+}
+
+export async function collectDigest({ sources = [], seeds = [], discoverySources = [], state = {}, now = new Date(), fetchImpl = globalThis.fetch } = {}) {
   now = new Date(now);
   if (!Number.isFinite(now.getTime())) throw new Error('Invalid collection date');
   if (typeof fetchImpl !== 'function') throw new Error('A fetch implementation is required');
@@ -219,6 +238,28 @@ export async function collectDigest({ sources = [], state = {}, now = new Date()
   nextState.schemaVersion = 1; nextState.sources ??= {}; nextState.seen ??= {};
   const stats = { sourcesChecked: 0, sourcesFailed: 0, feedItems: 0, stale: 0, future: 0, irrelevant: 0, invalid: 0, expiredCalls: 0, pageReview: 0, duplicates: 0, alreadySeen: 0, itemsSelected: 0 };
   const candidates = [];
+  if ((Array.isArray(discoverySources) ? discoverySources : discoverySources.sources ?? []).length) {
+    const discovery = await discoverOpportunities({ sources: discoverySources, now, fetchImpl, previous: state });
+    const researched = Array.isArray(seeds) ? seeds : seeds.opportunities ?? seeds.seeds ?? [];
+    const coveredPages = new Set(researched.map(seed => canonicalUrl(seed.sourceUrl)).filter(Boolean));
+    // A newly discovered representation of a researched call must not get a second identity.
+    seeds = [...researched, ...discovery.seeds.filter(seed => !coveredPages.has(canonicalUrl(seed.sourceUrl)))];
+    stats.discoveryCandidates = discovery.seeds.length;
+    for (const check of discovery.sourceChecks) {
+      const key = `discovery:${check.id}`, old = nextState.sources[key] ?? {};
+      nextState.sources[key] = {...old, ...check, lastCheckedAt:check.checkedAt, lastSuccessfulCheckAt:['verified','unchanged'].includes(check.status) ? now.toISOString() : old.lastSuccessfulCheckAt ?? null};
+    }
+  }
+  const official = await collectOpportunities({ seeds, now, fetchImpl, previous: state });
+  candidates.push(...official.items);
+  stats.officialVerified = official.items.length;
+  stats.opportunityChecks = official.sourceChecks.length;
+  stats.officialReview = official.sourceChecks.filter(check => check.status === 'review').length;
+  stats.expiredCalls += official.sourceChecks.filter(check => check.status === 'expired').length;
+  for (const check of official.sourceChecks) {
+    const key = `opportunity:${check.id}`, old = nextState.sources[key] ?? {};
+    nextState.sources[key] = {...old, ...check, lastCheckedAt:check.checkedAt, lastSuccessfulCheckAt:['verified','unchanged','deadline_reminder'].includes(check.status) ? now.toISOString() : old.lastSuccessfulCheckAt ?? null};
+  }
   for (let offset = 0; offset < sources.length; offset += 3) {
     await Promise.all(sources.slice(offset, offset + 3).map(async (source, sourceOffset) => {
       if (source.enabled === false) return;
@@ -238,24 +279,15 @@ export async function collectDigest({ sources = [], state = {}, now = new Date()
     }));
   }
   candidates.sort((a, b) => (a.type === b.type ? 0 : a.type === 'opportunity' ? -1 : 1) || (b.publishedAt ?? b.verifiedAt).localeCompare(a.publishedAt ?? a.verifiedAt) || a.id.localeCompare(b.id));
-  const selected = []; const ids = new Set(); const urls = new Set();
-  let charCount = 70;
-  for (const item of candidates) {
-    const duplicateKey = item.sourceType === 'RSS feed' ? item.url : `${item.url}|${semanticText(item.title)}`;
-    if (ids.has(item.id) || urls.has(duplicateKey)) { stats.duplicates++; continue; }
-    ids.add(item.id); urls.add(duplicateKey);
-    const previous = nextState.seen[item.id];
-    if (previous?.semanticHash === item.semanticHash) { stats.alreadySeen++; continue; }
-    item.change = previous ? 'updated' : 'new';
-    item.version = item.semanticHash;
-    const rendered = itemText(item);
-    if (selected.length >= 8 || charCount + rendered.length + 3 > 9900) continue;
-    selected.push(item); charCount += rendered.length + 3;
-    nextState.seen[item.id] = { semanticHash: item.semanticHash, lastSeenAt: now.toISOString(), publishedAt: item.publishedAt, title: item.title, url: item.url };
-  }
+  const selected = selectDigestItems(candidates, nextState, now, stats);
+  for (const item of selected) nextState.seen[item.id] = { ...nextState.seen[item.id], semanticHash: item.semanticHash, lastSeenAt: now.toISOString(), publishedAt: item.publishedAt, title: item.title, url: item.url, applicationUrl: item.applicationUrl, type: item.type, category: item.category, sourceType: item.sourceType, ...(item.change === 'reminder' ? {reminderVersion: item.semanticHash, reminderSentAt: now.toISOString()} : {}) };
   stats.itemsSelected = selected.length;
   nextState.lastCollectedAt = now.toISOString();
-  const text = selected.length ? `*Startup digest — ${localDate(now)}*\n\n${selected.map(itemText).join('\n\n')}` : '';
+  const sections = [];
+  const detailed = selected.filter(isRichOpportunity), news = selected.filter(item => !isRichOpportunity(item));
+  if (detailed.length) sections.push(`*Grants, programmes & events*\n\n${detailed.map(itemText).join('\n\n')}`);
+  if (news.length) sections.push(`*Startup news & announcements*\n\n${news.map(itemText).join('\n\n')}`);
+  const text = selected.length ? `*Startup opportunities & news — ${localDate(now)}*\n\n${sections.join('\n\n')}` : '';
   return { text, items: selected, nextState, stats };
 }
 
@@ -265,10 +297,12 @@ async function cli() {
   const folder = path.dirname(fileURLToPath(import.meta.url));
   const dataDir = path.resolve(process.env.DATA_DIR ?? value('--data-dir') ?? path.join(folder, 'data'));
   const sources = JSON.parse(await readFile(path.resolve(value('--sources') ?? path.join(folder, 'sources.json')), 'utf8'));
+  const seeds = JSON.parse(await readFile(path.resolve(value('--seeds') ?? path.join(folder, 'opportunity-seeds.json')), 'utf8'));
+  const discoverySources = JSON.parse(await readFile(path.resolve(value('--discovery-sources') ?? path.join(folder, 'discovery-sources.json')), 'utf8'));
   let state = {};
-  try { state = JSON.parse(await readFile(path.join(dataDir, 'state.json'), 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
+  try { state = JSON.parse(await readFile(path.join(dataDir, 'seen.json'), 'utf8')); } catch (error) { if (error.code !== 'ENOENT') throw error; }
   const now = value('--now') ? new Date(value('--now')) : new Date();
-  const result = await collectDigest({ sources, state, now });
+  const result = await collectDigest({ sources, seeds, discoverySources, state, now });
   await mkdir(path.join(dataDir, 'research'), { recursive: true });
   await mkdir(path.join(dataDir, 'outbox'), { recursive: true });
   const digestId = `startup-digest-${localDate(now)}`;
@@ -276,7 +310,7 @@ async function cli() {
   await writeFile(path.join(dataDir, 'research', 'candidate-state.json'), JSON.stringify(result.nextState, null, 2));
   await writeFile(path.join(dataDir, 'outbox', `${digestId}.json`), JSON.stringify({ digestId, text: result.text }, null, 2));
   console.log(JSON.stringify({ dryRun: true, sending: false, digestId, dataDir, stats: result.stats }));
-  // Collection never sends and never commits state.json. The publishing worker commits candidate state after acceptance.
+  // Collection never sends or commits seen.json. The publishing worker commits after acceptance.
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) cli().catch(error => { console.error(error.message); process.exitCode = 1; });

@@ -1,0 +1,80 @@
+{
+  "sources": [
+    {
+      "id": "nsrcel-programmes",
+      "name": "NSRCEL, IIM Bangalore",
+      "url": "https://nsrcel.org/",
+      "applicationHosts": ["nsrcel.accubate.app"],
+      "maxDetails": 4,
+      "enabled": true
+    },
+    {
+      "id": "tihan-programmes",
+      "name": "TiHAN, IIT Hyderabad",
+      "url": "https://tihan.iith.ac.in/",
+      "applicationHosts": ["forms.office.com", "forms.cloud.microsoft"],
+      "maxDetails": 2,
+      "enabled": true
+    },
+    {
+      "id": "nidhi-calls",
+      "name": "DST NIDHI",
+      "url": "https://nidhi.dst.gov.in/notice-category/new-calls/",
+      "maxDetails": 3,
+      "enabled": true,
+      "note": "Readable official new-call directory verified on 23 November 2026. Scheme descriptions alone do not establish an open startup application."
+    },
+    {
+      "id": "birac-calls",
+      "name": "BIRAC",
+      "url": "https://birac.nic.in/cfp.php",
+      "allowedHosts": ["birac.nic.in", "www.birac.nic.in"],
+      "applicationHosts": ["birac.nic.in", "www.birac.nic.in"],
+      "linkPatterns": ["cfp_view\\.php"],
+      "maxDetails": 4,
+      "enabled": true,
+      "note": "Readable official directory verified on 23 November 2026. Past calls and unsupported PDF-only notices are held."
+    },
+    {
+      "id": "iimcip-programmes",
+      "name": "IIM Calcutta Innovation Park",
+      "url": "https://iimcip.org/",
+      "applicationHosts": ["iimcipcontest.iimcip.org"],
+      "maxDetails": 5,
+      "enabled": true
+    },
+    {
+      "id": "sine-programmes",
+      "name": "SINE, IIT Bombay",
+      "url": "https://www.sineiitb.org/",
+      "maxDetails": 3,
+      "enabled": false,
+      "note": "Official homepage returned a JavaScript shell without readable programme links on 23 November 2026. Enable when a readable official directory is verified."
+    },
+    {
+      "id": "siic-programmes",
+      "name": "SIIC, IIT Kanpur",
+      "url": "https://www.siicincubator.com/programs",
+      "allowedHosts": ["www.siicincubator.com", "siicincubator.com"],
+      "maxDetails": 3,
+      "enabled": false,
+      "note": "Official programme URL returned a JavaScript shell without readable detail links on 23 November 2026. Enable when a readable official directory is verified."
+    },
+    {
+      "id": "startuptn-programmes",
+      "name": "StartupTN",
+      "url": "https://startuptn.in/",
+      "maxDetails": 4,
+      "enabled": false,
+      "note": "Direct HTTP verification returned a JavaScript shell without readable programme links on 23 November 2026. Enable after a permitted readable directory or feed is verified."
+    },
+    {
+      "id": "ccamp-programmes",
+      "name": "C-CAMP",
+      "url": "https://www.ccamp.res.in/",
+      "maxDetails": 4,
+      "enabled": false,
+      "note": "Direct HTTP verification returned 403 on 23 November 2026. Enable after a permitted readable source route is verified."
+    }
+  ]
+}

@@ -11,6 +11,11 @@ on:
         type: boolean
         required: false
         default: false
+      opportunity_preview:
+        description: 'Send the upgraded opportunities edition once today; repeated previews are skipped'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -127,6 +132,7 @@ jobs:
           AUTH_KEY_BASE64: ${{ secrets.AUTH_KEY_BASE64 }}
           CONTROL_TOKEN: ${{ secrets.CONTROL_TOKEN }}
           DIGEST_INITIALIZE_ONLY: ${{ steps.state-ready.outputs.initialized }}
+          DIGEST_OPPORTUNITY_PREVIEW: ${{ inputs.opportunity_preview }}
         run: node cloud-main.mjs --batch
 
       - name: Save updated encrypted state even after a worker error

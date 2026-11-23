@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { randomBytes } from 'node:crypto';
 import { collectDigest } from './collect-digest.mjs';
+import { prepareCollection, commitCollection, reconcileCollections } from './publication-state.mjs';
 
 const ROOT=path.dirname(fileURLToPath(import.meta.url));
 const DATA=path.resolve(process.env.DATA_DIR || path.join(ROOT,'data'));
@@ -13,6 +14,9 @@ const success=status=>['accepted','sent','server_acknowledged','delivered','read
 export function digestDate(now=new Date()){
  const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
  return ['year','month','day'].map(key=>parts.find(p=>p.type===key).value).join('-');
+}
+export function digestIdentity(now=new Date(),opportunityPreview=false){
+ return `startup-digest-${digestDate(now)}${opportunityPreview ? '-opportunities-v2' : ''}`;
 }
 async function writeJSON(file,value){
  await fs.mkdir(path.dirname(file),{recursive:true,mode:0o700});
@@ -49,10 +53,13 @@ async function stopChild(child){
  child.kill('SIGTERM');await Promise.race([new Promise(resolve=>child.once('exit',resolve)),pause(7000)]);
  if(child.exitCode===null)throw new Error('Relay has not stopped. Do not checkpoint or start another sender yet.');
 }
-export async function run({dryRun=false,now=new Date()}={}){
+export async function run({dryRun=false,now=new Date(),opportunityPreview=process.env.DIGEST_OPPORTUNITY_PREVIEW==='true'}={}){
  const sources=JSON.parse(await fs.readFile(path.join(ROOT,'sources.json'),'utf8'));
- const id=`startup-digest-${digestDate(now)}`;
- if(dryRun){const result=await collectDigest({sources,state:await readState(),now});await writeJSON(path.join(DATA,'research','preview.json'),result);console.log(JSON.stringify({dryRun:true,sending:false,stats:result.stats}));return result;}
+ const seeds=JSON.parse(await fs.readFile(path.join(ROOT,'opportunity-seeds.json'),'utf8'));
+ const discoverySources=JSON.parse(await fs.readFile(path.join(ROOT,'discovery-sources.json'),'utf8'));
+ const id=digestIdentity(now,opportunityPreview);
+ const collect=async()=>collectDigest({sources,seeds,discoverySources,state:await readState(),now});
+ if(dryRun){const result=await collect();await writeJSON(path.join(DATA,'research','preview.json'),result);console.log(JSON.stringify({dryRun:true,sending:false,stats:result.stats}));return result;}
  const token=await prepareConfig();
  const existing=await health();if(existing)throw new Error('This batch run needs its own relay; another service already uses the selected port.');
  const child=spawn(process.execPath,[path.join(ROOT,'relay.mjs')],{cwd:ROOT,env:{...process.env,DATA_DIR:DATA,WHATSAPP_RELAY_BIND_HOST:'127.0.0.1'},stdio:'ignore'});
@@ -68,6 +75,8 @@ export async function run({dryRun=false,now=new Date()}={}){
     await pause(1000);
    }
    if(!ready)throw new Error('WhatsApp did not reconnect within one minute');
+   const reconciled=await reconcileCollections({dataDir:DATA,statusLookup:digestId=>getStatus(token,digestId)});
+   if(reconciled.committed || reconciled.unreserved)console.log(JSON.stringify({collectionRecovery:reconciled}));
    const initialize=process.env.DIGEST_INITIALIZE_ONLY==='true';
    if(!initialize){
     const previous=await getStatus(token,id);
@@ -76,7 +85,7 @@ export async function run({dryRun=false,now=new Date()}={}){
      console.log(JSON.stringify({digestId:id,status:previous.status,duplicate:true,sending:false}));return {skipped:true};
     }
    }
-   const result=await collectDigest({sources,state:await readState(),now});
+   const result=await collect();
    await writeJSON(path.join(DATA,'research','last-check.json'),{checkedAt:now.toISOString(),stats:result.stats});
    if(initialize){
     const response=await post(token,{digestId:`cloud-feed-linked-${digestDate(now)}`,text:'Your free cloud startup feed is linked. Daily runs are scheduled for 6:30 PM IST and may arrive later when GitHub is busy. Updates go only to your Message yourself chat. This version uses source feeds and verified call monitors, with no paid AI API.'});
@@ -86,10 +95,10 @@ export async function run({dryRun=false,now=new Date()}={}){
    }
    if(!result.text){await writeJSON(path.join(DATA,'seen.json'),result.nextState);console.log(JSON.stringify({digestId:id,items:0,sending:false,stats:result.stats}));return result;}
    const payload={digestId:id,text:result.text};await writeJSON(path.join(DATA,'digests',`${id}.json`),payload);
+   const transaction=await prepareCollection({dataDir:DATA,digestId:id,result,now});
    const response=await post(token,payload);
-   await writeJSON(path.join(DATA,'seen.json'),result.nextState);
-   await writeJSON(path.join(DATA,'digests',`${id}-receipt.json`),{digestId:id,items:result.items.map(item=>({id:item.id,semanticHash:item.semanticHash})),response});
-   console.log(JSON.stringify({digestId:id,items:result.items.length,status:response.status,deliveryConfirmed:response.deliveryConfirmed}));return result;
+   await commitCollection({dataDir:DATA,record:transaction,response});
+   console.log(JSON.stringify({digestId:id,items:result.items.length,status:response.status,deliveryConfirmed:response.deliveryConfirmed,stats:result.stats}));return result;
  }finally{
    await stopChild(child);
    // These are reconstructed from the protected secret on the next run and

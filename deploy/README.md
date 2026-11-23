@@ -1,6 +1,6 @@
 # Private WhatsApp digest deployment
 
-The primary option is a scheduled GitHub Actions batch in a public code repository. It collects public sources, connects the paired WhatsApp account, sends its private digest to that same account, saves updated encrypted state, and exits. No AI API key or continuously running laptop is required. The workflow is a prepared deployment file; writing these files did not create a repository, upload state, register secrets, link WhatsApp, or enable a remote schedule.
+The active deployment is a scheduled GitHub Actions batch in the approved public code repository. It collects public sources, connects the paired WhatsApp account, sends its private digest to that same account, saves updated encrypted state, and exits. No AI API key or continuously running laptop is required. Bootstrap and linking are already complete; content updates use the current session and cache.
 
 ## Before activation
 
@@ -8,7 +8,7 @@ Review the worker, relay, source rules, package lock, and workflow together. The
 
 The cloud relay needs `DATA_DIR` support: its configuration directory must become `path.join(DATA_DIR, 'config')`, with the original local path used when `DATA_DIR` is absent. In Docker only, `WHATSAPP_RELAY_BIND_HOST=0.0.0.0` permits access through Docker's port mapping; the host publishes that port on `127.0.0.1` only. GitHub Actions should keep the relay itself bound to `127.0.0.1`.
 
-The worker accepts `--batch`, reads `AUTH_KEY_BASE64`, generates or reads an ephemeral local `CONTROL_TOKEN`, and handles `DIGEST_INITIALIZE_ONLY=true` by establishing a baseline without sending. It must flush encrypted auth and outbox writes before exiting. It must never accept an arbitrary recipient and must not retry a digest with an uncertain send outcome.
+The worker accepts `--batch`, reads `AUTH_KEY_BASE64`, generates or reads an ephemeral local `CONTROL_TOKEN`, and handles the initial `DIGEST_INITIALIZE_ONLY=true` by establishing a baseline and sending the approved connection confirmation. It flushes encrypted auth/outbox writes before exiting. It never accepts an arbitrary recipient and must not retry a digest with an uncertain send outcome.
 
 ## Approve and bootstrap once
 
@@ -18,7 +18,7 @@ After that approval, add only the approved `auth-state.enc` and `outbox.enc` to 
 
 Register the matching key as the repository Secret `AUTH_KEY_BASE64` through GitHub's Secrets settings. Never put its value in chat, a workflow file, a shell command recorded in history, or a log. `CONTROL_TOKEN` is optional if the worker generates a new private token each batch. Repository writers must be trusted because they can change code that runs with secrets.
 
-Set repository variable `BOOTSTRAP_ONLY_FIRST_RUN=true`, manually run the workflow with `initialize=true`, and verify that it establishes a baseline and retains the state cache without sending. Then set the variable to `false`. Subsequent daily runs restore the latest cache; scheduled runs never use the old bootstrap automatically. Manual reinitialization of a previously running workflow is a separate recovery operation requiring a current state snapshot and review of previously sent digests.
+First-run bootstrap is complete and `BOOTSTRAP_ONLY_FIRST_RUN` is false. Do not toggle it for a collector upgrade. Subsequent daily runs restore the latest cache; scheduled runs never use the old bootstrap automatically. Manual reinitialization of a previously running workflow is a separate recovery operation requiring a current state snapshot and review of previously sent digests.
 
 ## Schedule and state
 
@@ -39,9 +39,11 @@ GitHub caches are not durable databases. Entries unused for more than seven days
 
 The cache-save action can report upload failures as warnings. The workflow therefore verifies that the current run's exact cache key exists afterward. That verification confirms retention of a cache entry, not that a phone received its message.
 
+Before posting a digest, the worker saves its candidate public collection as a pending transaction under `data/digests/`. On every reconnect it reconciles pending transactions across dates: accepted sends restore the candidate shared-item history; uncertain reservations block all new editions; unreserved snapshots are discarded for fresh research. This prevents a lost post-send checkpoint from making accepted articles or calls appear new on the next day. A content preview uses a separate stable daily ID and the same reconciliation rules.
+
 ## Validate before cutover
 
-Check that a manual initialization sends nothing; that a subsequent test digest appears only in the account's self chat; that a second attempt with the same digest ID produces no new message; and that a timeout or missing/stale cache does not cause an automatic resend. Phone push notifications from a self chat require a live test. Baileys is unofficial and session or protocol changes may require maintenance or re-pairing.
+Check that a test digest appears only in the account's self chat; that a second attempt with the same digest ID produces no new message; that lost collection checkpoints reconcile accepted reservations; and that a timeout or missing/stale cache does not cause an automatic resend. Phone push notifications from a self chat require a live test. Baileys is unofficial and session or protocol changes may require maintenance or re-pairing.
 
 Run duration, repository visibility, billing settings, cache size, and GitHub's current plan limits determine whether this remains within free allowances. Use standard Linux hosted runners and no paid API. This is a free-tier candidate, not a permanent zero-cost guarantee.
 

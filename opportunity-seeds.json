@@ -1,0 +1,438 @@
+{
+  "verifiedDate": "2026-11-23",
+  "opportunities": [
+    {
+      "deadline": "1 December 2026, 11:59 p.m. GMT+8 (9:29 p.m. IST)",
+      "deadlineISO": "2026-12-01T23:59:00+08:00",
+      "deadlineTimezone": "Asia/Singapore",
+      "eventDate": "27 January–2 April 2027",
+      "eventLocation": "Virtual; Demo Day venues to be announced",
+      "id": "insead-ai-founder-sprint-2027",
+      "programme": "INSEAD AI Venture Lab — AI Founder Sprint 2027",
+      "organizer": "INSEAD AI Venture Lab",
+      "category": "accelerator",
+      "sourceUrl": "https://venture-lab.ai/apply/founder",
+      "applicationUrl": "https://venture-lab.ai/apply/founder",
+      "eligibility": "Founders aged 18+ anywhere in the world, including India; ideation through early startup stages, preferably with MVP/product. No INSEAD affiliation or AI product required. English sessions and part-time engagement.",
+      "benefits": "Ten-week virtual venture-building programme, 27 January–2 April 2027, with AI workshops, masterclasses, mentoring, peer groups, partner credits/discounts and investor feedback opportunities.",
+      "financialConditions": "Free participation; no equity taken. Demo Day prize opportunities are competitive and no funding is promised to every participant.",
+      "status": "open",
+      "requiredEvidence": [
+        "1 December 2026, 11:59pm GMT+8",
+        "27 Jan – 2 Apr 2027",
+        "completely free",
+        "we take no equity",
+        "18 years old",
+        "anywhere in the world",
+        "Ideas are welcome too"
+      ],
+      "evidenceNote": "Current founder application page identifies the 2027 cohort and deadline. The programme site is independently operated for the INSEAD-sponsored initiative.",
+      "evidenceSources": [
+        {
+          "url": "https://venture-lab.ai/sprint2027",
+          "requiredEvidence": [
+            "Masterclasses",
+            "Mentorship",
+            "Partner resources",
+            "Sessions are in English",
+            "No full-time commitment required"
+          ]
+        }
+      ],
+      "allowedHosts": [
+        "venture-lab.ai",
+        "www.venture-lab.ai",
+        "2gtstn.share-eu1.hsforms.com"
+      ]
+    },
+    {
+      "deadline": "Closing date not stated; official programme page currently says applications are open.",
+      "deadlineISO": null,
+      "deadlineTimezone": null,
+      "eventDate": null,
+      "eventLocation": null,
+      "id": "nsrcel-impact-orbit-agetech",
+      "programme": "Impact Orbit — AgeTech Innovations",
+      "organizer": "NSRCEL, IIM Bangalore, with Capgemini",
+      "category": "incubation_grant",
+      "sourceUrl": "https://nsrcel.org/impact-orbit-agetech-innovations/",
+      "applicationUrl": "https://nsrcel.accubate.app/ext/form/23314/1/apply",
+      "eligibility": "Registered for-profit/non-profit ventures serving older adults, operating for at least one year, with proven PoC/pilots, early revenue/traction and at least one full-time founder. Areas include senior healthcare, assistive mobility, home care, financial/legal security and social wellbeing.",
+      "benefits": "Eight-to-nine-month incubation with one-to-one mentoring, business-model refinement, legal/compliance and impact-measurement support. Select ventures may receive grants up to ₹12.5 lakh.",
+      "financialConditions": "No programme fee and no founder equity taken. Programme admission does not guarantee a grant; financial awards depend on evaluation and selection.",
+      "status": "open",
+      "requiredEvidence": [
+        "AgeTech Innovations",
+        "Applications are now open!",
+        "minimum period of 1 year",
+        "Early Revenue to Growth",
+        "one full time Founder",
+        "12.5 lakhs",
+        "8–9 months",
+        "does not guarantee a grant",
+        "does not charge any fees or take equity"
+      ],
+      "evidenceNote": "Raw issuer HTML fetched with Node HTTP 200 on 23 November. A duplicated Skilling/Livelihood FAQ also exists, but the later correctly labelled AgeTech FAQ independently confirms the grant and conditions. Closing date not stated.",
+      "evidenceSources": [],
+      "allowedHosts": [
+        "nsrcel.org",
+        "www.nsrcel.org",
+        "nsrcel.accubate.app"
+      ]
+    },
+    {
+      "deadline": "Rolling applications; no fixed closing date listed.",
+      "deadlineISO": null,
+      "deadlineTimezone": null,
+      "eventDate": null,
+      "eventLocation": "TiHAN, IIT Hyderabad, Kandi, Sangareddy, Telangana",
+      "id": "tihan-eir-rolling",
+      "programme": "TiHAN Entrepreneur in Residence (EIR)",
+      "organizer": "TiHAN — IIT Hyderabad",
+      "category": "fellowship",
+      "sourceUrl": "https://tihan.iith.ac.in/callforEIR.html",
+      "applicationUrl": "https://forms.office.com/pages/responsepage.aspx?id=5xxJevlWO0eosvm2nqf9OBfaN7PAjIZNhI0puHWuxAhUMVZXNEUxM0QzRVBIUlQ5Mjk5UThaMFVaMy4u&route=shorturl",
+      "eligibility": "Indian citizens pursuing/completing formal full-time undergraduate, postgraduate, PhD or postdoctoral education, with relevant experience and a scalable technology business idea in autonomous navigation, robotics, UAV/ROV, AI/ML, IoT/CPS or related mobility/data-acquisition areas.",
+      "benefits": "The call advertises ₹3 lakh fellowship support over six months for translational innovation and entrepreneurship in autonomous navigation technologies.",
+      "financialConditions": "Selective fellowship funding; use prescribed Annexure A and supporting documents. The public call does not specify equity/repayment terms, so these are not assumed.",
+      "status": "rolling",
+      "requiredEvidence": [
+        "₹3 Lakhs",
+        "6 Months Duration",
+        "Citizen of India",
+        "formal full-time education",
+        "Relevant experience is mandatory",
+        "Scalable technology-based business idea",
+        "Rolling Advertisement",
+        "Use Annexure A"
+      ],
+      "evidenceNote": "Raw official call HTML fetched HTTP 200. Application is a legitimate linked Microsoft Forms URL that redirects from forms.office.com to forms.cloud.microsoft; submission is not performed.",
+      "evidenceSources": [],
+      "allowedHosts": [
+        "tihan.iith.ac.in",
+        "forms.office.com",
+        "forms.cloud.microsoft"
+      ]
+    },
+    {
+      "deadline": "Open throughout the year.",
+      "deadlineISO": null,
+      "deadlineTimezone": null,
+      "eventDate": null,
+      "eventLocation": null,
+      "id": "fid-rolling",
+      "programme": "Fund for Innovation in Development (FID) — rolling project grants",
+      "organizer": "Fund for Innovation in Development (FID), hosted by Agence Française de Développement",
+      "category": "grant",
+      "sourceUrl": "https://fundinnovation.dev/en/launch-project",
+      "applicationUrl": "https://fundinnovation.wiin.io/en/",
+      "eligibility": "Organizations/collectives, independently or in consortium, implementing innovations against poverty/inequality in eligible low- or middle-income countries. Individual and international-organization applications are ineligible. Check the current OECD DAC country list and exclusions.",
+      "benefits": "Stage-based grants: preparation up to €50,000, pilot up to €200,000, impact evaluation up to €1.5 million and scale-up up to €4 million; separate public-policy routes exist. Requires evidence of impact, cost-effectiveness and scalability.",
+      "financialConditions": "Amounts are ceilings for distinct funding stages, not cumulative entitlements. Preparation grants have additional eligible-country organization requirements; evaluation/scale-up need prior testing and rigorous evidence.",
+      "status": "rolling",
+      "requiredEvidence": [
+        "year-round open call for projects",
+        "low- or middle-income country",
+        "Individual applications or those submitted by international organizations are not eligible"
+      ],
+      "evidenceNote": "Both official submission and funding-stage HTML pages fetched with Node HTTP 200. Stage ceilings and evidence/eligible-country conditions are checked across both URLs.",
+      "evidenceSources": [
+        {
+          "url": "https://fundinnovation.dev/en/approach",
+          "requiredEvidence": [
+            "Preparation for a pilot",
+            "50K€",
+            "200K€",
+            "1,5M€",
+            "4M€",
+            "counterfactual",
+            "official development assistance"
+          ]
+        }
+      ],
+      "allowedHosts": [
+        "fundinnovation.dev",
+        "www.fundinnovation.dev",
+        "fundinnovation.wiin.io"
+      ]
+    },
+    {
+      "deadline": "Needs review: current page header says deadline extended until 18 February, while its body still says 12 February 2027, 23:59 GMT+8.",
+      "deadlineISO": null,
+      "deadlineTimezone": "Asia/Singapore",
+      "eventDate": "April–May 2027 coaching/finale; exact finale date not stated",
+      "eventLocation": "Singapore; selected pilots in Singapore or Southeast Asia",
+      "id": "tlc-2027",
+      "programme": "The Liveability Challenge 2027",
+      "organizer": "Temasek Foundation; organized by Eco-Business",
+      "category": "challenge",
+      "sourceUrl": "https://www.theliveabilitychallenge.org/faq/submission",
+      "applicationUrl": "https://jotform.me/262088836192466",
+      "eligibility": "Applicants aged 18+ from anywhere, including India, with demonstrated proof of concept/roughly TRL 6+, addressing Decarbonisation, Cool Earth or Oceans. Solutions must work in Singapore/tropical cities. Organizer employees/related parties are excluded.",
+      "benefits": "Pitch coaching in April 2027, a Singapore Grand Finale in May, access to investors/incubators and competitive funding. Programme-wide support exceeds S$5.5 million across grants, development funding and investment opportunities.",
+      "financialConditions": "Free entry. Support pool is not a per-startup grant. Decarbonisation/Cool Earth pilots are expected in Singapore; Oceans pilots may be in Southeast Asia. Oceans equity investment and A*STAR development support have separate selection/terms. Finalist travel/accommodation support is conditional.",
+      "status": "needs_review",
+      "requiredEvidence": [
+        "Submission deadline extended until 18th February",
+        "12 February 2027 (23:59 GMT+8)",
+        "18 years or older",
+        "proof of concept",
+        "pilot in Singapore",
+        "S$5.5 million"
+      ],
+      "evidenceNote": "Raw Node HTTP 200 reveals a conflicting deadline banner missed by cached excerpts. Hold automatic publication until organizer confirmation or consistent current primary dates. Do not send a 12-February deadline alert.",
+      "evidenceSources": [
+        {
+          "url": "https://www.theliveabilitychallenge.org/participate",
+          "requiredEvidence": [
+            "Decarbonisation",
+            "Cool Earth",
+            "Oceans",
+            "S$1 Million",
+            "S$2 million in total",
+            "S$500,000",
+            "equity investment"
+          ]
+        }
+      ],
+      "allowedHosts": [
+        "www.theliveabilitychallenge.org",
+        "theliveabilitychallenge.org",
+        "jotform.me",
+        "form.jotform.com",
+        "form.jotform.me"
+      ]
+    },
+    {
+      "deadline": "Official page currently invites 2027-cohort applications; closing date not stated on the readable page.",
+      "deadlineISO": null,
+      "deadlineTimezone": null,
+      "eventDate": null,
+      "eventLocation": null,
+      "id": "wef-tech-pioneers-2027",
+      "programme": "World Economic Forum Technology Pioneers 2027",
+      "organizer": "World Economic Forum",
+      "category": "recognition_network",
+      "sourceUrl": "https://initiatives.weforum.org/innovator-communities/techpioneers",
+      "applicationUrl": "https://wefglobal.eu.qualtrics.com/jfe/form/SV_3xyEqATPtJCwdca",
+      "eligibility": "Independent privately held early-stage frontier-technology startups worldwide, under ten years old, with an effective business model and positive social/planetary impact. The programme page identifies Series A as its funding/valuation benchmark and expects leadership participation.",
+      "benefits": "Selection into a global cohort of 100 early-stage startups; two years of engagement with policymakers, corporates and the Forum's innovation community.",
+      "financialConditions": "Recognition/network access; the verified programme page does not promise a cash grant. Participation costs/terms and selection are subject to the application process.",
+      "status": "open",
+      "requiredEvidence": [
+        "2027 cohort is now open",
+        "100 leading start-ups",
+        "two years",
+        "Series A",
+        "10 years old",
+        "Independent and privately held"
+      ],
+      "evidenceNote": "Raw official WEF HTML fetched HTTP 200; it contains open 2027-cohort status, global selection and two-year engagement. Qualtrics is the actual linked application host; no unverified deadline is imported.",
+      "evidenceSources": [],
+      "allowedHosts": [
+        "initiatives.weforum.org",
+        "wefglobal.eu.qualtrics.com",
+        "www.weforum.org",
+        "weforum.org"
+      ]
+    },
+    {
+      "deadline": "14 December 2026, 5:00 p.m. IST",
+      "deadlineISO": "2026-12-14T17:00:00+05:30",
+      "deadlineTimezone": "Asia/Kolkata",
+      "eventDate": null,
+      "eventLocation": null,
+      "id": "elevate-nxt-2026",
+      "programme": "ELEVATE NxT 2026",
+      "organizer": "Government of Karnataka, Department of Electronics, IT and BT / KITS",
+      "category": "grant",
+      "sourceUrl": "https://elevate.startupkarnataka.in/public/",
+      "applicationUrl": "https://elevate.startupkarnataka.in/public/register",
+      "eligibility": "Independent registered startups anywhere in India with a minimum two-person founding/core team, deep-tech innovation/IP potential, TRL 3–8, within twenty years of incorporation and turnover within the portal's ₹300 crore limit. No ELEVATE grant in the preceding three years.",
+      "benefits": "Selected startups can receive grant-in-aid up to ₹1 crore with milestone-based disbursement, mentoring and incubation support.",
+      "financialConditions": "Out-of-Karnataka winners must move their registered office to Karnataka within four months of results. Selection and disbursement are conditional; required pitch decks, affidavit and financial documents apply.",
+      "status": "open",
+      "requiredEvidence": [
+        "ELEVATE NxT",
+        "₹1 crore",
+        "300 Crores",
+        "20 Years",
+        "3-8",
+        "Team of 2",
+        "last 3 years",
+        "4 months",
+        "14th December 2026 5:00 PM IST",
+        "milestone-based"
+      ],
+      "evidenceNote": "Raw issuer HTML fetched Node HTTP 200. Required evidence gates material current grant/eligibility/relocation/deadline fields; eligibility is scoped to the NxT section.",
+      "evidenceSources": [],
+      "allowedHosts": [
+        "elevate.startupkarnataka.in",
+        "eitbt.karnataka.gov.in"
+      ]
+    },
+    {
+      "deadline": "14 December 2026, 5:00 p.m. IST",
+      "deadlineISO": "2026-12-14T17:00:00+05:30",
+      "deadlineTimezone": "Asia/Kolkata",
+      "eventDate": null,
+      "eventLocation": "Karnataka, India",
+      "id": "elevate-minorities-2026",
+      "programme": "ELEVATE Minorities 2026",
+      "organizer": "Government of Karnataka, Department of Electronics, IT and BT / KITS",
+      "category": "grant",
+      "sourceUrl": "https://elevate.startupkarnataka.in/public/",
+      "applicationUrl": "https://elevate.startupkarnataka.in/public/register",
+      "eligibility": "Independent startup incorporated in Karnataka, within ten years of incorporation, within the portal's ₹200 crore turnover limit, with qualifying minority director/partner ownership of at least 51% and valid Karnataka digital Minority Certificate/RD number. No ELEVATE grant in the preceding three years.",
+      "benefits": "Selected startups can receive up to ₹50 lakh grant-in-aid for prototype development, market development and scaling, plus mentoring/incubation support.",
+      "financialConditions": "Qualifying ownership must be maintained throughout the project. Minority owners must attend in-person pitching; awards are conditional and milestone based.",
+      "status": "open",
+      "requiredEvidence": [
+        "ELEVATE Minorities 2026",
+        "50 Lakhs",
+        "Incorporated in Karnataka",
+        "200 Crores",
+        "10 Years",
+        "51% equity",
+        "RD Number",
+        "milestone-based",
+        "14th December 2026 5:00 PM IST"
+      ],
+      "evidenceNote": "Raw issuer HTML fetched Node HTTP 200. Separate Minorities call record; current ownership, state, financial ceiling and deadline must still match.",
+      "evidenceSources": [],
+      "allowedHosts": [
+        "elevate.startupkarnataka.in",
+        "eitbt.karnataka.gov.in"
+      ]
+    },
+    {
+      "deadline": "31 January 2027; exact closing time/time zone not stated in the verified FAQ.",
+      "deadlineISO": "2027-01-31",
+      "deadlineTimezone": null,
+      "eventDate": "June 2027 programme launch",
+      "eventLocation": "Hybrid; India is an eligible implementation country",
+      "id": "bevisioneers-2027",
+      "programme": "beVisioneers — The Mercedes-Benz Fellowship 2027",
+      "organizer": "The DO School Fellowships gGmbH; supported by Mercedes-Benz",
+      "category": "fellowship",
+      "sourceUrl": "https://bevisioneers.world/faqs/fellowship",
+      "applicationUrl": "https://applications.bevisioneers.world/enter/106",
+      "eligibility": "Applicants aged 18–28 residing in eligible countries, including India, who will implement a planet-positive project there. Strong English and commitment required; early prototypes/pre-revenue ventures preferred, exceptional researched ideas considered. Mercedes-Benz employees and their children are excluded.",
+      "benefits": "Hybrid environmental venture-building fellowship starting June 2027, with mentoring, training, summits, potential stipends and competitive project scholarships after the foundational year.",
+      "financialConditions": "Participation is funded. Stipends depend on need/milestones, scholarship awards depend on progress/selection, and travel support has conditions. An existing financially sustainable project is ineligible.",
+      "status": "open",
+      "requiredEvidence": [
+        "18 and 28 years old",
+        "India",
+        "January 31 2027",
+        "no costs to individual fellows",
+        "June, 2027",
+        "planet-positive",
+        "already financially sustainable",
+        "project milestones"
+      ],
+      "evidenceNote": "Raw official FAQ fetched Node HTTP 200. Age, India eligibility, programme launch, conditional support and free participation are gated. FAQ has inconsistent scholarship ceilings, so this record intentionally states no exact amount.",
+      "evidenceSources": [],
+      "allowedHosts": [
+        "bevisioneers.world",
+        "www.bevisioneers.world",
+        "applications.bevisioneers.world"
+      ]
+    },
+    {
+      "deadline": "Registration passes currently available; booking cutoff not stated.",
+      "deadlineISO": null,
+      "deadlineTimezone": "Asia/Kolkata",
+      "eventDate": "13–15 December 2026",
+      "eventLocation": "Brilliant Convention Centre, Indore, Madhya Pradesh, India",
+      "id": "tie-global-summit-indore-2026",
+      "programme": "TiE Global Summit 2026",
+      "organizer": "TiE Indore",
+      "category": "event",
+      "sourceUrl": "https://tieglobalsummit.org/register/",
+      "applicationUrl": "https://events.tie.org/Indore/TiEGlobalSummit2026#/buyTickets/selectTickets?lang=en",
+      "eligibility": "Founders, investors, entrepreneurs and startup ecosystem participants; select the appropriate delegate/pass category.",
+      "benefits": "Entrepreneurship sessions, masterclasses, expo and networking. Startup showcasing/pitching have separate participation requirements.",
+      "financialConditions": "Paid pass categories; current exact prices are handled by the booking portal. Attendance does not imply startup funding.",
+      "status": "registration_open",
+      "requiredEvidence": [
+        "Passes Now Available"
+      ],
+      "evidenceNote": "Raw official event and registration HTML both fetched Node HTTP 200. Secondary source verifies future dates and venue; primary page verifies passes available. Actual booking link retained; no ticket purchase performed.",
+      "evidenceSources": [
+        {
+          "url": "https://tieglobalsummit.org/",
+          "requiredEvidence": [
+            "Sun, 13",
+            "15 December 2026",
+            "Brilliant Convention Centre"
+          ]
+        }
+      ],
+      "allowedHosts": [
+        "tieglobalsummit.org",
+        "www.tieglobalsummit.org",
+        "events.tie.org"
+      ]
+    },
+    {
+      "deadline": "Live pass booking; cutoff not stated.",
+      "deadlineISO": null,
+      "deadlineTimezone": "Asia/Kolkata",
+      "eventDate": "12 December 2026, 8:30 a.m.–5:30 p.m. IST",
+      "eventLocation": "Welcomhotel by ITC Hotels, Ashram Road, Ahmedabad, Gujarat, India",
+      "id": "global-startup-summit-ahmedabad-2026",
+      "programme": "Global Startup Summit Ahmedabad 2026",
+      "organizer": "Global Startups Club",
+      "category": "event",
+      "sourceUrl": "https://summit.globalstartups.club/ahmedabad",
+      "applicationUrl": "https://summit.globalstartups.club/ahmedabad",
+      "eligibility": "Founders, investors, operators and ecosystem participants. Pitching needs a separate pitching package.",
+      "benefits": "Founder–investor conversations, panels, networking, startup pitches and business showcases.",
+      "financialConditions": "Listed Silver pass ₹1,350 including GST without lunch; Gold ₹2,700 including GST with lunch; Pitch Battles + Gold ₹6,000 including GST. Prices may change. Pitch admission guarantees neither funding nor an award.",
+      "status": "registration_open",
+      "requiredEvidence": [
+        "Saturday, 12 December 2026",
+        "Welcomhotel",
+        "₹ 1,350",
+        "₹ 2,700",
+        "₹ 6,000",
+        "does not guarantee funding, investment or an award"
+      ],
+      "evidenceNote": "Raw organizer HTML fetched Node HTTP 200. Current displayed prices have a space after ₹; earlier crossed-out prices are distinct. Checkout destination is not verified and no payment is performed.",
+      "evidenceSources": [],
+      "allowedHosts": [
+        "summit.globalstartups.club",
+        "globalstartups.club"
+      ]
+    },
+    {
+      "deadline": "Official notice invites registration; cutoff not stated.",
+      "deadlineISO": null,
+      "deadlineTimezone": "Asia/Kolkata",
+      "eventDate": "7–9 December 2026",
+      "eventLocation": "Bharat Future City, Hyderabad, Telangana, India",
+      "id": "invest-telangana-global-summit-2026",
+      "programme": "Invest Telangana Global Summit 2026",
+      "organizer": "Government of Telangana",
+      "category": "event",
+      "sourceUrl": "https://www.indembassybern.gov.in/content/Invest-Telangana-Global-Summit-2026-from-7th-to-9th-December-2026-at-Bharat-Future-City-Hyderabad-India.pdf",
+      "applicationUrl": "https://invite-itgs2026.telangana.gov.in/invest-telangana-global-summit-2026/gjf2ic?subcat=gjf2id",
+      "eligibility": "Enterprises, startups, innovators, investors and ecosystem participants across life sciences, IT/emerging tech, AVGC, electronics, manufacturing and mobility; portal admission requirements need confirmation.",
+      "benefits": "Sector sessions, business engagements, Startup Arena and exhibition opportunities to meet investors, policymakers and industry leaders.",
+      "financialConditions": "Official notice does not specify registration cost, exhibit fees or financial support; confirm before booking.",
+      "status": "registration_invited",
+      "requiredEvidence": [
+        "from 7th to 9th December 2026 at Bharat Future City, Hyderabad",
+        "Kindly register your participation"
+      ],
+      "evidenceNote": "Government PDF invites registration, but the linked portal was not independently verified. Keep out of automatic publishing until admission/booking status can be confirmed.",
+      "allowedHosts": [
+        "www.indembassybern.gov.in",
+        "indembassybern.gov.in",
+        "invite-itgs2026.telangana.gov.in"
+      ],
+      "evidenceSources": []
+    }
+  ]
+}
